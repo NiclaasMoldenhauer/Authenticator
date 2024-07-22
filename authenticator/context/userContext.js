@@ -235,6 +235,7 @@ export const UserContextProvider = ({children}) => {
         user,
         updateUser,
         emailVerification,
+        // verifyUser,
       }}
     >
       {children}
