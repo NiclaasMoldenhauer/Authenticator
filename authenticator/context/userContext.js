@@ -1,4 +1,3 @@
-import ForgotPasswordForm from '@/app/components/auth/ForgotPasswordForm/ForgotPassswordform';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import React, {useEffect, useState, useContext} from 'react';
@@ -56,7 +55,7 @@ export const UserContextProvider = ({children}) => {
       console.log ('Fehler beim Registrieren', error);
       toast.error (error.response.data.message);
     }
-  }; 
+  };
 
   // login user
   const loginUser = async e => {
@@ -193,18 +192,17 @@ export const UserContextProvider = ({children}) => {
         }
       );
 
-      toast.success('Email zur Bestätigung gesendet!');
+      toast.success ('Email zur Bestätigung gesendet!');
       setLoading (false);
     } catch (error) {
-      console.log("Fehler beim Senden der Bestätigung", error);
+      console.log ('Fehler beim Senden der Bestätigung', error);
       setLoading (false);
-      toast.error(error.response.data.message);
+      toast.error (error.response.data.message);
     }
   };
 
-
   // verify user/email
-  const verifyUser = async (token) => {
+  const verifyUser = async token => {
     setLoading (true);
     try {
       const res = await axios.post (
@@ -213,25 +211,25 @@ export const UserContextProvider = ({children}) => {
         {
           withCredentials: true, // send cookies zum server
         }
-      )
+      );
 
-      toast.success('Erfolgreich verifiziert!');
+      toast.success ('Erfolgreich verifiziert!');
 
       // User details aktualisieren
-      getUser();
+      getUser ();
       setLoading (false);
 
       // redirect to dashboard
       router.push ('/');
     } catch (error) {
-      console.log("Fehler beim Verifizieren", error);
-      toast.error(error.response.data.message);
+      console.log ('Fehler beim Verifizieren', error);
+      toast.error (error.response.data.message);
       setLoading (false);
     }
-  }
+  };
 
   // forgot password email
-  const forgotPasswordEmail = async (email) => {
+  const forgotPasswordEmail = async email => {
     setLoading (true);
 
     try {
@@ -243,19 +241,21 @@ export const UserContextProvider = ({children}) => {
         {
           withCredentials: true, // send cookies zum server
         }
-      )
+      );
 
-      toast.success('Email zum Zurücksetzen des Passworts gesendet!');
+      toast.success ('Email zum Zurücksetzen des Passworts gesendet!');
       setLoading (false);
     } catch (error) {
-      console.log("Fehler beim Senden der E-Mail zum Zurücksetzen des Passworts", error);
-      toast.error(error.response.data.message);
+      console.log (
+        'Fehler beim Senden der E-Mail zum Zurücksetzen des Passworts',
+        error
+      );
+      toast.error (error.response.data.message);
       setLoading (false);
     }
-  }
+  };
 
-
-// reset password
+  // reset password
   const resetPassword = async (token, password) => {
     setLoading (true);
 
@@ -270,17 +270,16 @@ export const UserContextProvider = ({children}) => {
         }
       );
 
-
-      toast.success('Passwort erfolgreich geändert!');
+      toast.success ('Passwort erfolgreich geändert!');
       setLoading (false);
       // redirect to login
       router.push ('/login');
     } catch (error) {
-      console.log("Fehler beim Zurücksetzen des Passworts", error);
-      toast.error(error.response.data.message);
+      console.log ('Fehler beim Zurücksetzen des Passworts', error);
+      toast.error (error.response.data.message);
       setLoading (false);
     }
-  }
+  };
 
   // change password
   const changePassword = async (currentPassword, newPassword) => {
@@ -297,13 +296,33 @@ export const UserContextProvider = ({children}) => {
           withCredentials: true, // send cookies zum server
         }
       );
-
     } catch (error) {
-      console.log("Fehler bei der Passwortänderung");
-      toast.error(error.response.data.message);
+      console.log ('Fehler bei der Passwortänderung');
+      toast.error (error.response.data.message);
       setLoading (false);
     }
-  }
+  };
+
+  // admin routes
+  const getAllUsers = async () => {
+    setLoading (true);
+    try {
+      const res = await axios.get (
+        `${serverUrl}/api/v1/admin/users`,
+        {},
+        {
+          withCredentials: true, // send cookies zum server
+        }
+      );
+
+      setAllUsers (res.data);
+      setLoading (false);
+    } catch (error) {
+      console.log ('Fehler beim Laden der Nutzer', error);
+      toast.error (error.response.data.message);
+      setLoading (false);
+    }
+  };
 
   // dynamiischer form handler
   const handlerUserInput = name => e => {
@@ -313,6 +332,29 @@ export const UserContextProvider = ({children}) => {
       ...prevState,
       [name]: value,
     }));
+  };
+
+  // User löschen
+  const deleteUser = async id => {
+    setLoading (true);
+    try {
+      const res = await axios.delete (
+        `${serverUrl}/api/v1/admin/users/${id}`,
+        {},
+        {
+          withCredentials: true, // send cookies zum server
+        }
+      );
+
+      toast.success ('Nutzer gelöscht!');
+      setLoading (false);
+      // Userliste aktualisieren
+      getAllUsers ();
+    } catch (error) {
+      console.log ('Fehler beim Löschen des Nutzers', error);
+      toast.error (error.response.data.message);
+      setLoading (false);
+    }
   };
 
   useEffect (() => {
@@ -326,6 +368,15 @@ export const UserContextProvider = ({children}) => {
 
     loginStatusGetUser ();
   }, []);
+
+  useEffect (
+    () => {
+      if (user.role === 'admin') {
+        getAllUsers ();
+      }
+    },
+    [user.role]
+  );
 
   return (
     <UserContext.Provider
@@ -343,6 +394,8 @@ export const UserContextProvider = ({children}) => {
         verifyUser,
         changePassword,
         resetPassword,
+        deleteUser,
+        allUsers,
       }}
     >
       {children}
