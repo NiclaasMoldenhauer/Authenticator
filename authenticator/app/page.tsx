@@ -2,6 +2,7 @@
 import { useUserContext } from "@/context/userContext";
 import useRedirect from "./hooks/useUserRedirect";
 import { useState } from "react";
+import ChangePasswordForm from "./components/auth/ChangePasswordForm/ChangePasswordForm";
 
 export default function Home() {
   useRedirect("/login");
@@ -12,20 +13,32 @@ export default function Home() {
     userState,
     updateUser,
     emailVerification,
+    allUsers,
   } = useUserContext();
   const { name, photo, isVerified, bio } = user;
 
-  // openstate
-  const [isOpen, setIsOpen] = useState(false);
+  // open states
+  const [isBioOpen, setIsBioOpen] = useState(false);
+  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
 
-  // function
-  const myToggle = () => {
-    setIsOpen(!isOpen);
+  // functions
+  const toggleBio = () => {
+    setIsBioOpen(!isBioOpen);
+  };
+
+  const togglePassword = () => {
+    setIsPasswordOpen(!isPasswordOpen);
+  };
+
+  const closeModal = (e: { target: any; currentTarget: any; }) => {
+    if (e.target === e.currentTarget) {
+      setIsPasswordOpen(false);
+    }
   };
 
   return (
     <main className="py-[2rem] mx-[10rem]">
-      <header className="flex justify-between">
+      <header className="flex justify-between items-center">
         <h1 className="text-[2rem] font-bold">
           Hi <span className="text-blue-400">{name}</span>
         </h1>
@@ -35,6 +48,12 @@ export default function Home() {
             alt={name}
             className="w-[40px] h-[40px] rounded-full"
           />
+          <button
+            onClick={togglePassword}
+            className="px-3 py-2 bg-blue-400 text-white rounded-md"
+          >
+            Passwort ändern
+          </button>
           {!isVerified && (
             <button
               className="px-3 py-2 bg-blue-400 text-white rounded-md"
@@ -56,14 +75,14 @@ export default function Home() {
 
         <h1>
           <button
-            onClick={myToggle}
+            onClick={toggleBio}
             className="px-3 py-2 bg-blue-400 text-white rounded-md"
           >
             Update Bio
           </button>
         </h1>
 
-        {isOpen && (
+        {isBioOpen && (
           <form className="mt-4 px-8 py-4 max-w-[500px] w-full rounded-md">
             <div className="flex flex-col">
               <label htmlFor="bio" className="mb-1 text-[#42a5f5]">
@@ -86,6 +105,21 @@ export default function Home() {
           </form>
         )}
       </section>
+      <div className="mt-4 flex gap-8">
+        {isPasswordOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={closeModal}>
+            <div className="bg-white p-8 rounded-md shadow-md w-full max-w-md relative">
+              <button
+                className="absolute top-4 right-4 text-gray-500 text-2xl"
+                onClick={togglePassword}
+              >
+                &times;
+              </button>
+              <ChangePasswordForm />
+            </div>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
