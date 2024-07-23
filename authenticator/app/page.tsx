@@ -14,6 +14,7 @@ export default function Home() {
     updateUser,
     emailVerification,
     allUsers,
+    deleteUser,
   } = useUserContext();
   const { name, photo, isVerified, bio } = user;
 
@@ -105,21 +106,25 @@ export default function Home() {
           </form>
         )}
       </section>
-      <div className="mt-4 flex gap-8">
-        {isPasswordOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" onClick={closeModal}>
-            <div className="bg-white p-8 rounded-md shadow-md w-full max-w-md relative">
-              <button
-                className="absolute top-4 right-4 text-gray-500 text-2xl"
-                onClick={togglePassword}
-              >
-                &times;
-              </button>
-              <ChangePasswordForm />
-            </div>
+      {isPasswordOpen && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white p-8 rounded-md shadow-md w-full max-w-md relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-0 right-0 mt-2 mr-2 text-gray-500 text-3xl"
+              onClick={togglePassword}
+            >
+              &times;
+            </button>
+            <ChangePasswordForm />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </main>
   );
 }
