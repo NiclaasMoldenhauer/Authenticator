@@ -4,6 +4,14 @@ import useRedirect from "./hooks/useUserRedirect";
 import { useState } from "react";
 import ChangePasswordForm from "./components/auth/ChangePasswordForm/ChangePasswordForm";
 
+interface User {
+  _id: string;
+  name: string;
+  photo: string;
+  bio: string;
+  role: string;
+}
+
 export default function Home() {
   useRedirect("/login");
   const {
@@ -21,6 +29,7 @@ export default function Home() {
   // open states
   const [isBioOpen, setIsBioOpen] = useState(false);
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
+  const [isUserListOpen, setIsUserListOpen] = useState(false);
 
   // functions
   const toggleBio = () => {
@@ -31,9 +40,14 @@ export default function Home() {
     setIsPasswordOpen(!isPasswordOpen);
   };
 
-  const closeModal = (e: { target: any; currentTarget: any; }) => {
+  const toggleUserList = () => {
+    setIsUserListOpen(!isUserListOpen);
+  };
+
+  const closeModal = (e: { target: any; currentTarget: any }) => {
     if (e.target === e.currentTarget) {
       setIsPasswordOpen(false);
+      setIsUserListOpen(false);
     }
   };
 
@@ -55,6 +69,14 @@ export default function Home() {
           >
             Passwort ändern
           </button>
+          {user.role === "admin" && (
+            <button
+              onClick={toggleUserList}
+              className="px-3 py-2 bg-green-400 text-white rounded-md"
+            >
+              Nutzerliste
+            </button>
+          )}
           {!isVerified && (
             <button
               className="px-3 py-2 bg-blue-400 text-white rounded-md"
@@ -122,6 +144,53 @@ export default function Home() {
               &times;
             </button>
             <ChangePasswordForm />
+          </div>
+        </div>
+      )}
+      {isUserListOpen && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white p-8 rounded-md shadow-md w-full max-w-lg relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-0 right-0 mt-2 mr-2 text-gray-500 text-3xl"
+              onClick={toggleUserList}
+            >
+              &times;
+            </button>
+            <div className="overflow-y-auto max-h-96">
+              <ul>
+                {allUsers.map(
+                  (user: User, i: number) =>
+                    user.role !== "admin" && (
+                      <li
+                        key={i}
+                        className="mb-2 px-2 py-3 border grid grid-cols-4 items-center gap-8 rounded-md"
+                      >
+                        <img
+                          src={user.photo}
+                          alt={user.name}
+                          className="w-[40px] h-[40px] rounded-full"
+                        />
+                        <p>{user.name}</p>
+                        <p>{user.bio}</p>
+                        <button
+                          className="bg-red-500 text-white p-2 rounded-md"
+                          onClick={() => {
+                            deleteUser(user._id);
+                          }}
+                        >
+                          Nutzer löschen
+                        </button>
+                      </li>
+                    )
+                )}
+              </ul>
+            </div>
           </div>
         </div>
       )}

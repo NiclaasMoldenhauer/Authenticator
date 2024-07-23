@@ -339,7 +339,7 @@ export const UserContextProvider = ({children}) => {
     setLoading (true);
     try {
       const res = await axios.delete (
-        `${serverUrl}/api/v1/admin/users/${id}`,
+        `${serverUrl}/api/v1/admin/user/${id}`,
         {},
         {
           withCredentials: true, // send cookies zum server
@@ -352,7 +352,7 @@ export const UserContextProvider = ({children}) => {
       getAllUsers ();
     } catch (error) {
       console.log ('Fehler beim Löschen des Nutzers', error);
-      toast.error (error.response.data.message);
+      toast.error (error.response?.data?.message || 'Nutzer konnte nicht gelöscht werden');
       setLoading (false);
     }
   };
