@@ -1,3 +1,4 @@
+import ForgotPasswordForm from '@/app/components/auth/ForgotPasswordForm/ForgotPassswordform';
 import axios from 'axios';
 import {useRouter} from 'next/navigation';
 import React, {useEffect, useState, useContext} from 'react';
@@ -55,7 +56,7 @@ export const UserContextProvider = ({children}) => {
       console.log ('Fehler beim Registrieren', error);
       toast.error (error.response.data.message);
     }
-  };
+  }; 
 
   // login user
   const loginUser = async e => {
@@ -201,6 +202,32 @@ export const UserContextProvider = ({children}) => {
     }
   };
 
+
+  // forgot password email
+  const forgotPasswordEmail = async (email) => {
+    setLoading (true);
+
+    try {
+      const res = await axios.post (
+        `${serverUrl}/api/v1/forgot-password`,
+        {
+          email,
+        },
+        {
+          withCredentials: true, // send cookies zum server
+        }
+      )
+
+      toast.success('Email zum Zurücksetzen des Passworts gesendet!');
+      setLoading (false);
+    } catch (error) {
+      console.log("Fehler beim Senden der E-Mail zum Zurücksetzen des Passworts", error);
+      toast.error(error.response.data.message);
+      setLoading (false);
+    }
+  }
+
+
   // dynamiischer form handler
   const handlerUserInput = name => e => {
     const value = e.target.value;
@@ -235,6 +262,7 @@ export const UserContextProvider = ({children}) => {
         user,
         updateUser,
         emailVerification,
+        forgotPasswordEmail,
         // verifyUser,
       }}
     >
